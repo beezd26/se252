@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 
 import jsint.Evaluator;
 import jsint.InputPort;
+import jsint.JavaMethod;
 import jsint.Pair;
 import jsint.Scheme;
 import jsint.Symbol;
@@ -63,7 +64,12 @@ public class JScheme implements java.io.Serializable {
   public JScheme() {
     evaluator = new Evaluator();
   }
-
+  
+	public JScheme(String fileName) {
+		JavaMethod.turnOffCompileMode();
+		JavaMethod.setPermissionsFile(fileName);
+		evaluator = new Evaluator();
+	}
   /**
    * Creates a Scheme environment that shares an evaluation enironment.
    * Top-level bindings will be shared.
@@ -71,6 +77,7 @@ public class JScheme implements java.io.Serializable {
   public JScheme(Evaluator e) {
     evaluator = e;
   }
+ 
 
   /**
    * Returns the Scheme environment that is currently executing Scheme.  Only
