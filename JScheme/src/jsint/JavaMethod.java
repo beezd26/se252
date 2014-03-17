@@ -61,10 +61,12 @@ public class JavaMethod extends Reflector {
    **/
 
  
-  private static final String WHITE_LIST_FILE_NAME = "whitelist.txt";
+  private static String WHITE_LIST_FILE_NAME = null;
   
   private static boolean initializedWhiteList = false;
   private static List<WhiteList> whiteList = new LinkedList<WhiteList>();
+  
+  private static boolean CompileMode = true;
   
    public JavaMethod(String name, Class c, boolean isStatic, boolean isPrivileged) { 
 	if(!initializedWhiteList){
@@ -79,8 +81,8 @@ public class JavaMethod extends Reflector {
     this.minArgs = isStatic ? 0 : 1;
     this.isPrivileged=isPrivileged;
     reset();
-   }
-
+   } 
+    
     public JavaMethod(String name, Class c, boolean isStatic) { 
       this(name,c,isStatic,false);
     }
@@ -88,6 +90,14 @@ public class JavaMethod extends Reflector {
     public JavaMethod(String name, Class c) {
       this(name,c,(c!=null));
     }     
+    
+  public static void setPermissionsFile(String fileName){
+	  WHITE_LIST_FILE_NAME = fileName;
+  }
+  
+  public static void turnOffCompileMode(){
+	  CompileMode = false;
+  }
     
   private void initializeWhiteList(){ 
 	    BufferedReader br = null;
@@ -167,19 +177,22 @@ public class JavaMethod extends Reflector {
 	}
   
 	public void checkMethod(Method m) throws Exception {
-		boolean methodOkToRun = false;
+		if (CompileMode == false) {
+			boolean methodOkToRun = false;
 
-		for (WhiteList wl : whiteList) {
-			if ((m.getDeclaringClass().getName().equals(wl.getClazz()) && m
-					.getName().equals(wl.getMethod()))
-					|| (m.getDeclaringClass().getName().equals(wl.getClazz()) && wl
-							.getMethod() == null)) {
-				methodOkToRun = true;
-				break;
+			for (WhiteList wl : whiteList) {
+				if ((m.getDeclaringClass().getName().equals(wl.getClazz()) && m
+						.getName().equals(wl.getMethod()))
+						|| (m.getDeclaringClass().getName()
+								.equals(wl.getClazz()) && wl.getMethod() == null)) {
+					methodOkToRun = true;
+					break;
+				}
 			}
+			if (!methodOkToRun)
+				throw new Exception(
+						"***** YOU DO NOT HAVE PROPER PRIVILEGES TO RUN THIS JAVA METHOD! *****");
 		}
-		if (!methodOkToRun)
-			throw new Exception("***** YOU DO NOT HAVE PROPER PRIVILEGES TO RUN THIS JAVA METHOD! *****");
 	}
 
   public Object[] makeArgArray(Object[] code,
