@@ -36,8 +36,9 @@ public class CryptoHelper {
 	 * @param schemePath the location of the scheme file to include in the signed object
 	 * @param initialData any data that needs to be passed to the scheme program
 	 * @param privateKeyPath the location of the private key
+	 * @throws NoSuchProviderException 
 	 */
-	public static void CreateSignedObject(String outputPath, String schemePath, String initialData, String privateKeyPath) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, SignatureException
+	public static void CreateSignedObject(String outputPath, String schemePath, String initialData, String privateKeyPath) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, SignatureException, NoSuchProviderException
 	{
 		//create serializable CodeObject
 		CodeObject theObject = new CodeObject();
@@ -57,7 +58,7 @@ public class CryptoHelper {
 		theObject.scheme = bos.toByteArray();
 		
 		//read private key from file using bouncy castle pemreader
-		final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		final KeyFactory keyFactory = KeyFactory.getInstance("RSA", "BC");
         final PemReader reader = new PemReader( new FileReader( privateKeyPath ) );
         final byte[] prKey = reader.readPemObject(  ).getContent(  );
         final PKCS8EncodedKeySpec pkcs8Spec = new PKCS8EncodedKeySpec(prKey);
@@ -80,12 +81,13 @@ public class CryptoHelper {
 	 * Verifies the signature of a signed object 
 	 * @param publicKeyPath the location of the public key
 	 * @param sigObject the signed object to be verified with the supplied public key
+	 * @throws NoSuchProviderException 
 	 */
-	public static boolean VerifySignedObject(String publicKeyPath, SignedObject sigObject) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, SignatureException 
+	public static boolean VerifySignedObject(String publicKeyPath, SignedObject sigObject) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, SignatureException, NoSuchProviderException 
 	{
 		//read public key from file using bouncy castle pemreader
 		FileReader fr = new FileReader(publicKeyPath);     
-    	final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    	final KeyFactory keyFactory = KeyFactory.getInstance("RSA", "BC");
         final PemReader reader = new PemReader( new FileReader( publicKeyPath ) );
         final byte[] pKey = reader.readPemObject(  ).getContent(  );
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(pKey);
